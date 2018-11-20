@@ -1,6 +1,7 @@
 ///
 /// @fn TimeWatch.hpp
-/// @brief 時間計測を行うクラスのヘッダファイル
+/// @author Shirao Shotaro
+/// @version 0.1.1
 ///
 
 #ifndef WLIB_TIMEWATCH_HPP
