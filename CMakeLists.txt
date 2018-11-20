@@ -7,7 +7,7 @@ include_directories(src ${PROJECT_INCLUDE_DIRECTORIES})
 
 ### Project Settings
 
-add_executable(TimeWatch src/TimeWatch.cpp test/main.cpp)
+add_executable(TimeWatch src/TimeWatch.cpp src/TimeWatch.hpp test/main.cpp)
 
 # For Multi Platform
 if(UNIX) # for Linux

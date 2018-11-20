@@ -15,28 +15,23 @@
 namespace wlib{
 
 ///
-/// @brief 処理時間を調べるためのクラス
-///
-/// インスタンスを生成し、ラベルを登録することで、後でデータ化しやすくするものです
+/// @brief Utility class of measuring processing times.
 ///
 class TimeWatch{
 public:
 
-    /// @brief コンストラクタ
-    ///
-    /// ラベルを指定し、今後スナップショットを取る際はそのラベルと一緒に指定します。
-    /// ラベルは、start、stopは予約されています。
-    /// ラベルの重複は許可されません。
+	///
+    /// @brief Constructor
     ///
     /// @param title [in] Timewatch instance name.
-    /// @param average_samples [in] Amount of sample for calculating average.
+    /// @param average_samples [in] Amount of sample for calculating average and maximum time.
     ///
     explicit TimeWatch(const std::string & title = "", const size_t & average_samples = 20) noexcept;
 
     ///
     /// @brief Destructor
     ///
-    ~TimeWatch(void) = default;
+    virtual ~TimeWatch(void) = default;
 
     ///
     /// @brief Reset and start this watch.
@@ -55,11 +50,13 @@ public:
     ///
     /// @return Elapsed time (ms)
     ///
-    int64_t stamp(const std::string & label);
+    virtual int64_t stamp(const std::string & label);
 
     ///
-    /// @brief Get the elapsed time from label.
+    /// @brief Get the elapsed time by label.
     ///
+	/// When you put unexisting labell, this function returns -1 and does never report any errors.
+	///
     /// @param label [in] target label
     ///
     /// @return Elapsed time (ms)
@@ -67,41 +64,56 @@ public:
     int64_t get(const std::string & label) const;
 
     ///
-    /// @brief CSVのヘッダを出力する
+    /// @brief Output the CSV Header.
     ///
-    /// printResultCSV()はデータのみ出力するため、ヘッダを出力する場合はこの関数を使用してください。
+	/// Generate and output csv header from labels.
+    /// If you want to output data to csv, use printResultCSV().
     ///
     /// @param out_stream [out] output stream instance
-    /// @param delimiter delimiter of data.
+    /// @param delimiter [in] the delimiter string of data.
     ///
+	/// @sa printResultCSV()
+	///
     void printCSVHeader(std::ostream & out_stream, const std::string & delimiter = ",") const;
 
     ///
-    /// @brief 計測結果をプリントする
+    /// @brief Output data to CSV.
     ///
-    /// 引数のストリームに対して出力します。データ用として利用するのに最適なCSV形式にして出力します。
+    /// When you want to dump speed data, you can use this function.
     ///
-    /// @param out 出力ストリーム
-    /// @param delimiter CSVの区切り文字
+    /// @param out [out] output stream instance
+    /// @param delimiter [in] the delimiter string of data.
     ///
     void printCSVResult(std::ostream & out_stream, const std::string & delimiter = ",") const;
 
     ///
-    /// @brief 計測結果を装飾して出力する
+    /// @brief Output decorated results.
     ///
-    /// 引数のストリームに対して出力します。
-    /// 表示用として確認するのに最適にフォーマットします。
-    /// @param out 出力ストリーム
+	/// You can implement inheritance classes.
     ///
-    void printDecoratedResult(std::ostream & out) const;
+	/// @param out_stream [out] output stream instance
+    ///
+    virtual void printDecoratedResult(std::ostream & out_stream) const;
+
+	/////// GETTER ////////
+	/// @brief Getter of title.
+	std::string getTitle(void) const { return this->title_; }
+
+	/// @brief Getter of average samples count.
+	size_t getAverageSamplesNum(void) const { return this->average_samples_; }
+	
+	/// @brief Getter of current labels.
+	const std::vector<std::string> & getLabels(void) const { return this->labels_; }
+
+protected:
+
+	std::vector<std::string> labels_;
+    std::unordered_map<std::string, std::list<int64_t>> timestamps_;
+    std::chrono::system_clock::time_point start_;
 
 private:
     const size_t average_samples_;
     const std::string title_;
-
-    std::vector<std::string> labels_;
-    std::unordered_map<std::string, std::list<int64_t>> timestamps_;
-    std::chrono::system_clock::time_point start_;
 };
 
 }
